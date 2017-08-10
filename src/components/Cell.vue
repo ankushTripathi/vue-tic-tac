@@ -15,17 +15,17 @@ export default {
         place() {
             if(! this.frozen){
                 this.mark = this.$parent.activePlayer
+                 Event.$emit('place',this.name)
                 this.frozen = true
-                Event.$emit('place',this.name)
             }
         }
     },
     created(){
         Event.$on('freeze',() => this.frozen = true)
-        Event.$on('clearCells',() => 
+        Event.$on('clearCells',() => {
         this.mark = '', 
         this.frozen = false
-        )
+        })
     }
 }
 </script>

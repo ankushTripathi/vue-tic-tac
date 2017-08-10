@@ -46,25 +46,18 @@ export default {
             ],
         }
     },
-    watch : {
-         gameStatus () {
-            if (this.gameStatus === 'win') {
-                this.gameStatusColor = 'statusWin'
+        created () {
+        Event.$on('place',(cellNumber)=>{
+            this.cells[cellNumber] = this.activePlayer
+            this.changePlayer()
+            this.moves++
+            this.changeGameStatus()
+        })
 
-                this.gameStatusMessage = `${this.activePlayer} Wins !`
-
-                return
-            } else if (this.gameStatus === 'draw') {
-                this.gameStatusColor = 'statusDraw'
-
-                this.gameStatusMessage = 'Draw !'
-
-                return
-            }
-
-            this.gameStatusMessage = `${this.activePlayer}'s turn`
-            }
-        },
+        Event.$on('gridReset',() => 
+          Object.assign(this.$data, this.$options.data())
+        )
+    },
     computed : {
         nonActivePlayer(){
             if(this.activePlayer === 'O'){
@@ -80,15 +73,24 @@ export default {
         },
         changeGameStatus(){
             if(this.checkWin()){
+                this.gameStatusColor = 'statusWin'
+                this.gameStatusMessage = `${this.nonActivePlayer} Wins !`
+                console.log(this.gameStatusMessage)
+                Event.$emit('win', this.nonActivePlayer)
+                Event.$emit('freeze')
 
-                return this.gameWon()
-
+                return 
             }else if(this.moves === 9){
+                this.gameStatusColor = 'statusDraw'
+                this.gameStatusMessage = 'Draw !'
 
-                return 'draw'
+                return
+            }else{
+                this.gameStatusMessage = `${this.activePlayer}'s turn`
+                this.gameStatusColor = 'statusColor'
 
-            }else
-                return 'turn'
+                return
+            }
         },
         areEqual () {
             var len = arguments.length;
@@ -111,25 +113,6 @@ export default {
 
             return false
         },
-        gameWon () {
-            Event.$emit('win', this.activePlayer)
-                this.gameStatusMessage = `${this.activePlayer} Wins !`
-                Event.$emit('freeze')
-
-            return 'win'
-        }
-    },
-    created () {
-        Event.$on('place',(cellNumber)=>{
-            this.cells[cellNumber] = this.activePlayer
-            this.moves++
-            this.gameStatus = this.changeGameStatus()
-            this.changePlayer()
-        })
-
-        Event.$on('gridReset',() => 
-          Object.assign(this.$data, this.$options.data())
-        )
     }
 }
 </script>
