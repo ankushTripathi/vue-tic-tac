@@ -1,5 +1,5 @@
 <template>
-  <td class="cell">{{ mark }}</td>
+  <td class="cell" @click="place">{{ mark }}</td>
 </template>
 
 <script>
@@ -10,6 +10,22 @@ export default {
             frozen : false,
             mark : ''
         }
+    },
+    methods : {
+        place() {
+            if(! this.frozen){
+                this.mark = this.$parent.activePlayer
+                this.frozen = true
+                Event.$emit('place',this.name)
+            }
+        }
+    },
+    created(){
+        Event.$on('freeze',() => this.frozen = true)
+        Event.$on('clearCells',() => 
+        this.mark = '', 
+        this.frozen = false
+        )
     }
 }
 </script>

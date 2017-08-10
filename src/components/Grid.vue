@@ -45,6 +45,91 @@ export default {
                 [1,5,9], [3,5,7]
             ],
         }
+    },
+    watch : {
+         gameStatus () {
+            if (this.gameStatus === 'win') {
+                this.gameStatusColor = 'statusWin'
+
+                this.gameStatusMessage = `${this.activePlayer} Wins !`
+
+                return
+            } else if (this.gameStatus === 'draw') {
+                this.gameStatusColor = 'statusDraw'
+
+                this.gameStatusMessage = 'Draw !'
+
+                return
+            }
+
+            this.gameStatusMessage = `${this.activePlayer}'s turn`
+            }
+        },
+    computed : {
+        nonActivePlayer(){
+            if(this.activePlayer === 'O'){
+                return 'X'
+            }
+            else
+                return 'O'
+        }
+    },
+    methods : {
+        changePlayer(){
+            this.activePlayer = this.nonActivePlayer
+        },
+        changeGameStatus(){
+            if(this.checkWin()){
+
+                return this.gameWon()
+
+            }else if(this.moves === 9){
+
+                return 'draw'
+
+            }else
+                return 'turn'
+        },
+        areEqual () {
+            var len = arguments.length;
+
+            for (var i = 1; i < len; i++){
+                if (arguments[i] === '' || arguments[i] !== arguments[i-1])
+                    return false;
+            }
+            return true;
+        },
+        checkWin () {
+            for (let i = 0; i < this.winConditions.length; i++) {
+                let wc = this.winConditions[i]
+                let cells = this.cells
+
+                if (this.areEqual(cells[wc[0]], cells[wc[1]], cells[wc[2]])) {
+                    return true
+                }
+            }
+
+            return false
+        },
+        gameWon () {
+            Event.$emit('win', this.activePlayer)
+                this.gameStatusMessage = `${this.activePlayer} Wins !`
+                Event.$emit('freeze')
+
+            return 'win'
+        }
+    },
+    created () {
+        Event.$on('place',(cellNumber)=>{
+            this.cells[cellNumber] = this.activePlayer
+            this.moves++
+            this.gameStatus = this.changeGameStatus()
+            this.changePlayer()
+        })
+
+        Event.$on('gridReset',() => 
+          Object.assign(this.$data, this.$options.data())
+        )
     }
 }
 </script>
